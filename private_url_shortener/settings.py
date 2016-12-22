@@ -31,7 +31,7 @@ DATABASES = {
     },
 }
 
-DEBUG = os.environ.get('DEBUG') == 'False' or True
+DEBUG = os.environ.get('DEBUG') != 'False'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
