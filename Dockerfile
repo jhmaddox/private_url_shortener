@@ -6,6 +6,8 @@ RUN apt-get update
 RUN mkdir /src
 WORKDIR /src
 ADD requirements.txt .
+RUN apt-get install -y libmysqlclient-dev
+RUN pip install -U pip
 RUN pip install -r requirements.txt --src /usr/local/src
 ADD . .
 CMD [".docker/run.sh"]
