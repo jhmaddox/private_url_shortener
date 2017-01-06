@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+
+  postgres:
+    environment:
+      POSTGRES_DB: private_url_shortener
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_USER: admin
+    image: postgres
+
+  private_url_shortener:
+    extends:
+      file: docker-compose.base.yml
+      service: private_url_shortener
+    environment:
+      DATABASE_ENGINE: django.db.backends.postgresql
+      DATABASE_HOST: postgres
+      DATABASE_NAME: private_url_shortener
+      DATABASE_PASSWORD: 12345
+      DATABASE_USER: admin
+    links:
+      - postgres

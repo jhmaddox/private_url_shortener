@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  private_url_shortener:
+    extends:
+      file: docker-compose.base.yml
+      service: private_url_shortener
+    environment:
+      DATABASE_ENGINE: django.db.backends.sqlite3

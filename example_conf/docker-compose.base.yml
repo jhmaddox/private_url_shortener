@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+
+  private_url_shortener:
+    build: ../
+    environment:
+      ALLOWED_HOSTS: localhost
+      PRIVATE_SHORTENER_API_SECRET_KEY: __CHANGE_ME_ALSO__
+      PRIVATE_SHORTENER_SIG_LENGTH: 8
+      SECRET_KEY: __CHANGE_ME__
+    ports:
+      - 8888:8000
+    restart: unless-stopped
