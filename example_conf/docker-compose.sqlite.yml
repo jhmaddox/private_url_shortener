@@ -1,6 +1,16 @@
 version: '2'
 
 services:
+
+  nginx:
+    extends:
+      file: docker-compose.base.yml
+      service: nginx
+    links:
+      - private_url_shortener
+    volumes_from:
+      - private_url_shortener:ro
+
   private_url_shortener:
     extends:
       file: docker-compose.base.yml
