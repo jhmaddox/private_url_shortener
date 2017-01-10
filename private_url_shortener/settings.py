@@ -9,9 +9,9 @@ import os
 # Django conf
 # *****************************************************************************
 
-ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS', '')]
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 AUTH_PASSWORD_VALIDATORS = []
-CSRF_COOKIE_SECURE = os.environ.get('SSL_ONLY') == 'True'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DATABASES = {
@@ -31,7 +31,7 @@ DATABASES = {
     },
 }
 
-DEBUG = os.environ.get('DEBUG') != 'False'
+DEBUG = os.environ.get('DEBUG', '').lower() == 'true'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -93,8 +93,7 @@ PRIVATE_SHORTENER_SIG_LENGTH = int(os.environ.get('PRIVATE_SHORTENER_SIG_LENGTH'
 PRIVATE_SHORTENER_REDIRECT_EXPIRED_URL = os.environ.get('PRIVATE_SHORTENER_REDIRECT_EXPIRED_URL')
 PRIVATE_SHORTENER_REDIRECT_INVALID_URL = os.environ.get('PRIVATE_SHORTENER_REDIRECT_INVALID_URL')
 
-SESSION_COOKIE_SECURE = os.environ.get('SSL_ONLY') == 'True'
-STATIC_ROOT = os.environ.get('STATIC_ROOT')
+STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(BASE_DIR, 'static_root'))
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
 TEMPLATES = [{
