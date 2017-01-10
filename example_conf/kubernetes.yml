@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shortener
+  labels:
+    app: url-shortener
+spec:
+  ports:
+  - port: 443
+    targetPort: 8080
+    protocol: TCP
+    name: https
+  selector:
+    app: url-shortener
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: url-shortener
+  name: url-shortener-backend
+spec:
+  ports:
+  - port: 8000
+  selector:
+    app: url-shortener
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: url-shortener-nginx-config
+data:
+  default.conf: |
+    upstream backend {
+        server url-shortener-backend:8000 max_fails=0;
+    }
+    server {
+        client_max_body_size 2M;
+        gzip on;
+        gzip_min_length 1000;
+        gzip_proxied any;
+        gzip_types text/plain application/xml text/javascript text/css;
+        gzip_disable "MSIE [1-6]\.";
+        gzip_comp_level 5;
+        listen 8080;
+        server_name my.site.io;
+        server_tokens off;
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header X_FORWARDED_PROTOCOL https;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-Host $server_name;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location /static/ {
+            root /static_root;
+        }
+    }
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: url-shortener
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: url-shortener
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        resources:
+          requests:
+            memory: 128M
+            cpu: 200m
+          limits:
+            memory: 128M
+            cpu: 200m
+        volumeMounts:
+        - name: nginx-file-cache
+          mountPath: /var/cache/nginx/
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/
+        - name: static-root
+          mountPath: /static_root/static/
+      - name: url-shortener
+        image: jhmaddox/private_url_shortener
+        env:
+        - name: ALLOWED_HOSTS
+          value: my.site.io
+        - name: DATABASE_ENGINE
+          value: django.db.backends.postgresql
+        - name: DATABASE_HOST
+          value: __CHANGE_ME__
+        - name: DATABASE_NAME
+          value: private_url_shortener
+        - name: DATABASE_PASSWORD
+          value: __CHANGE_ME__
+        - name: DATABASE_USER
+          value: __CHANGE_ME__
+        - name: PRIVATE_SHORTENER_API_SECRET_KEY
+          value: __CHANGE_ME__
+        - name: SECRET_KEY
+          value: __CHANGE_ME__
+        - name: STATIC_ROOT
+          value: /static_root/static
+        - name: TIME_ZONE
+          value: America/Los_Angeles
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128M
+          requests:
+            cpu: 100m
+            memory: 128M
+        volumeMounts:
+        - name: static-root
+          mountPath: /static_root/static/
+      volumes:
+      - name: nginx-file-cache
+        emptyDir:
+          medium: Memory
+      - name: nginx-config
+        configMap:
+          name: url-shortener-nginx-config
+      - name: static-root
+        emptyDir: {}
