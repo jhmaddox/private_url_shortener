@@ -5,7 +5,7 @@ services:
   nginx:
     image: nginx
     ports:
-      - 8992:80
+      - 80:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
@@ -13,14 +13,9 @@ services:
     # build: ../
     image: jhmaddox/private_url_shortener
     environment:
-      ALLOWED_HOSTS: localhost
-      DEBUG: 'False'
       PRIVATE_SHORTENER_API_SECRET_KEY: __CHANGE_ME_ALSO__
       PRIVATE_SHORTENER_SIG_LENGTH: 8
       SECRET_KEY: __CHANGE_ME__
       STATIC_ROOT: /static_root/static
-    ports:
-      - 8888:8000
-    restart: unless-stopped
     volumes:
       - /static_root/static
